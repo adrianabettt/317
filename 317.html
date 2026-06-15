@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missão Dados e Informações no Dia a Dia</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --background: #F7FFF7;
+            --text: #2F3E46;
+            --white: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--white);
+            border: 4px solid var(--secondary);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            background: #E8F1F2;
+            padding: 15px;
+            border-radius: 20px;
+            border: 2px dashed var(--primary);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .intro-text {
+            font-size: 15px;
+            line-height: 1.5;
+            background: #FFF;
+            padding: 10px;
+            border-radius: 12px;
+            border-left: 5px solid var(--accent);
+            text-align: left;
+        }
+
+        .card {
+            background: #F8F9FA;
+            border: 3px solid #E9ECEF;
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .card.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .badge {
+            background: var(--secondary);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        /* Elementos Interativos */
+        .btn-opt {
+            display: block;
+            width: 100%;
+            background: var(--white);
+            border: 2px solid #CED4DA;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .btn-opt:hover {
+            background: #F1F3F5;
+            border-color: #6C757D;
+        }
+
+        .btn-opt.selected {
+            background: #E3F2FD;
+            border-color: #2196F3;
+            font-weight: bold;
+        }
+
+        .grid-vf, .grid-classif {
+            display: grid;
+            gap: 15px;
+        }
+
+        .item-row {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #E9ECEF;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border: 2px solid #CED4DA;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-sm.active-v { background: #D4EDDA; border-color: #28A745; color: #155724; }
+        .btn-sm.active-f { background: #F8D7DA; border-color: #DC3545; color: #721C24; }
+        .btn-sm.active-d { background: #FFF3CD; border-color: #FFC107; color: #856404; }
+        .btn-sm.active-i { background: #D1ECF1; border-color: #17A2B8; color: #0C5460; }
+
+        .select-blank {
+            padding: 5px;
+            font-size: 16px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            background: #FFF;
+            font-family: inherit;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Controles de Navegação */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .btn-nav {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #D94E4E;
+            font-weight: bold;
+        }
+
+        .btn-nav:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .btn-nav:disabled {
+            background: #CCCCCC;
+            box-shadow: 0 4px 0 #999999;
+            cursor: not-allowed;
+        }
+
+        /* Tela de Resultados e Relatório */
+        .result-box {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .score-big {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px 0;
+            background: #FFF9E6;
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            border: 3px dashed var(--accent);
+        }
+
+        .feedback-tag {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #F1F3F5;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .report-section {
+            text-align: left;
+            background: #FAF9F6;
+            padding: 15px;
+            border-radius: 14px;
+            border: 2px solid #E5E5E5;
+        }
+
+        .report-section h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #495057;
+            border-bottom: 2px solid #E9ECEF;
+            padding-bottom: 5px;
+        }
+
+        .skill-list {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+
+        .skill-list li {
+            font-size: 13px;
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .skill-list.dom-list li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+
+        .skill-list.rev-list li::before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #6C757D;
+            font-weight: bold;
+        }
+
+        svg {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>💡 Missão: Dados e Informações</h1>
+            <div class="intro-text">
+                <strong>💡 Para lembrar:</strong> <strong>DADO:</strong>  é um registro simples: um número, uma palavra, uma cor, uma quantidade. 
+              <strong>INFORMAÇÃO:</strong> é o que entendemos quando damos um contexto ao dado. </strong> 
+            </div>
+        </header>
+
+        <!-- MISSÃO 1 -->
+        <div class="card active" id="m1">
+            <span class="badge">Missão 1 de 4: Verdadeiro ou Falso</span>
+            <h2>Descubra se a frase diz a verdade sobre os dados:</h2>
+            
+            <div class="grid-vf" id="container-m1">
+                <div class="item-row" data-id="0">
+                    <span>Um número sozinho sem nenhuma explicação é uma informação completa.</span>
+                    <div class="btn-group">
+                        <button class="btn-sm" onclick="setVF(0, true, this)">V</button>
+                        <button class="btn-sm" onclick="setVF(0, false, this)">F</button>
+                    </div>
+                </div>
+                <div class="item-row" data-id="1">
+                    <span>Informação é quando juntamos dados e eles passam a fazer sentido para nós.</span>
+                    <div class="btn-group">
+                        <button class="btn-sm" onclick="setVF(1, true, this)">V</button>
+                        <button class="btn-sm" onclick="setVF(1, false, this)">F</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MISSÃO 2 -->
+        <div class="card" id="m2">
+            <span class="badge">Missão 2 de 4: Separando as Caixas</span>
+            <h2>Ajude a organizar! Classifique cada item corretamente:</h2>
+            
+            <div class="grid-classif" id="container-m2">
+                <div class="item-row" data-id="0">
+                    <span>A palavra solta: <strong>"Azul"</strong></span>
+                    <div class="btn-group">
+                        <button class="btn-sm" onclick="setClassif(0, 'D', this)">É um Dado</button>
+                        <button class="btn-sm" onclick="setClassif(0, 'I', this)">É Informação</button>
+                    </div>
+                </div>
+                <div class="item-row" data-id="1">
+                    <span>A frase: <strong>"O céu hoje está Azul"</strong></span>
+                    <div class="btn-group">
+                        <button class="btn-sm" onclick="setClassif(1, 'D', this)">É um Dado</button>
+                        <button class="btn-sm" onclick="setClassif(1, 'I', this)">É Informação</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MISSÃO 3 -->
+        <div class="card" id="m3">
+            <span class="badge">Missão 3 de 4: Completar as Lacunas</span>
+            <h2>Complete a história da rua usando as opções corretas:</h2>
+            
+            <div class="item-row" style="display: block; line-height: 2;">
+                À beira da pista, o motorista avistou uma placa com o desenho 
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3"><circle cx="12" cy="12" r="10"/></svg> 
+                contendo apenas o número <strong>"40"</strong>. 
+                Nesse momento, o número 40 é apenas um 
+                <select class="select-blank" id="lacuna1">
+                    <option value="">...</option>
+                    <option value="dado">Dado</option>
+                    <option value="informacao">Informação</option>
+                </select>. 
+                Logo abaixo, havia outra plaquinha escrito <strong>"KM/H"</strong>. Juntando tudo, o motorista entendeu a 
+                <select class="select-blank" id="lacuna2">
+                    <option value="">...</option>
+                    <option value="dado">Dado</option>
+                    <option value="informacao">Informação</option>
+                </select> 
+                de que a velocidade máxima permitida naquela rua era de 40 quilômetros por hora.
+            </div>
+        </div>
+
+        <!-- MISSÃO 4 -->
+        <div class="card" id="m4">
+            <span class="badge">Missão 4 de 4: O Super Computador</span>
+            <h2>Como os computadores nos ajudam com isso no dia a dia?</h2>
+            <p style="font-size: 14px; margin-bottom: 12px; color: #666;">Imagine que o computador recebeu o dado: "☀️" e o dado: "30°C".</p>
+            
+            <div id="container-m4">
+                <button class="btn-opt" data-id="0" onclick="setQuiz(this, 0)">A) O computador apaga os dados porque eles não servem para nada.</button>
+                <button class="btn-opt" data-id="1" onclick="setQuiz(this, 1)">B) O computador junta os dados e mostra na tela a informação de que hoje fará um dia ensolarado e quente.</button>
+                <button class="btn-opt" data-id="2" onclick="setQuiz(this, 2)">C) O computador transforma tudo em um jogo de corrida de carros.</button>
+            </div>
+        </div>
+
+        <!-- TELA DE RESULTADOS -->
+        <div class="card" id="tela-resultado">
+            <span class="badge" style="background-color: var(--primary);">🏆 Desafio Concluído!</span>
+            <div class="result-box">
+                <h2>Sua Nota Final:</h2>
+                <div class="score-big" id="nota-final">0.0</div>
+                <div class="feedback-tag" id="feedback-texto">Feedback</div>
+
+                <div class="stats-grid">
+                    <div class="stat-card"><strong>Acertos:</strong> <span id="total-acertos" style="color: green; font-weight: bold;">0</span></div>
+                    <div class="stat-card"><strong>Erros:</strong> <span id="total-erros" style="color: red; font-weight: bold;">0</span></div>
+                    <div class="stat-card" style="grid-column: span 2;"><strong>Aproveitamento:</strong> <span id="percentual">0%</span></div>
+                </div>
+
+                <div class="report-section">
+                    <h3>📋 Relatório Pedagógico de Evolução</h3>
+                    
+                    <div id="box-dominadas">
+                        <strong style="font-size: 13px; color: green;">Habilidades Dominadas:</strong>
+                        <ul class="skill-list dom-list" id="lista-dominadas"></ul>
+                    </div>
+                    
+                    <div id="box-revisar" style="margin-top: 10px;">
+                        <strong style="font-size: 13px; color: #D94E4E;">Habilidades para Retomar e Praticar:</strong>
+                        <ul class="skill-list rev-list" id="lista-revisar"></ul>
+                    </div>
+                </div>
+
+                <button class="btn-nav" onclick="reiniciarJogo()" style="margin-top: 20px; background-color: var(--secondary); box-shadow: 0 4px 0 #3ba8a0;">Jogar Novamente</button>
+            </div>
+        </div>
+
+        <!-- CONTROLES -->
+        <div class="nav-container" id="controles">
+            <button class="btn-nav" id="btn-voltar" onclick="mudarCard(-1)" disabled>Voltar</button>
+            <button class="btn-nav" id="btn-avancar" onclick="mudarCard(1)">Avançar ➡️</button>
+        </div>
+    </div>
+
+    <footer>
+        Profª Adriana Bett Terebinto | Atividade Pedagógica
+    </footer>
+
+    <script>
+        // Estado da aplicação
+        let cardAtual = 1;
+        const totalCards = 4;
+        
+        // Respostas do Aluno
+        let respostas = {
+            m1: [null, null],
+            m2: [null, null],
+            m3: [null, null],
+            m4: null
+        };
+
+        // Gabarito Oficial
+        const gabarito = {
+            m1: [false, true],
+            m2: ['D', 'I'],
+            m3: ['dado', 'informacao'],
+            m4: 1
+        };
+
+        // Função para embaralhar os elementos filhos de um container contêiner
+        function embaralharElementos(idContainer) {
+            const container = document.getElementById(idContainer);
+            const elementos = Array.from(container.children);
+            
+            // Algoritmo de Fisher-Yates para embaralhar
+            for (let i = elementos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                container.appendChild(elementos[j]);
+            }
+        }
+
+        // Inicializa embaralhando os blocos ao carregar a página
+        window.onload = function() {
+            embaralharElementos('container-m1');
+            embaralharElementos('container-m2');
+            embaralharElementos('container-m4');
+        };
+
+        function mudarCard(direcao) {
+            if (direcao === 1 && cardAtual === totalCards) {
+                finalizarAtividade();
+                return;
+            }
+
+            document.getElementById(`m${cardAtual}`).classList.remove('active');
+            cardAtual += direcao;
+            document.getElementById(`m${cardAtual}`).classList.add('active');
+
+            document.getElementById('btn-voltar').disabled = (cardAtual === 1);
+            if (cardAtual === totalCards) {
+                document.getElementById('btn-avancar').innerText = "Ver Nota 📊";
+                document.getElementById('btn-avancar').style.backgroundColor = "#4ECDC4";
+                document.getElementById('btn-avancar').style.boxShadow = "0 4px 0 #3ba8a0";
+            } else {
+                document.getElementById('btn-avancar').innerText = "Avançar ➡️";
+                document.getElementById('btn-avancar').style.backgroundColor = "var(--primary)";
+                document.getElementById('btn-avancar').style.boxShadow = "0 4px 0 #D94E4E";
+            }
+        }
+
+        function setVF(index, valor, botao) {
+            respostas.m1[index] = valor;
+            let irmaos = botao.parentNode.children;
+            irmaos[0].classList.remove('active-v');
+            irmaos[1].classList.remove('active-f');
+            botao.classList.add(valor ? 'active-v' : 'active-f');
+        }
+
+        function setClassif(index, valor, botao) {
+            respostas.m2[index] = valor;
+            let irmaos = botao.parentNode.children;
+            irmaos[0].classList.remove('active-d');
+            irmaos[1].classList.remove('active-i');
+            botao.classList.add(valor === 'D' ? 'active-d' : 'active-i');
+        }
+
+        function setQuiz(botao, valor) {
+            respostas.m4 = valor;
+            let opcoes = document.querySelectorAll('.btn-opt');
+            opcoes.forEach(opt => opt.classList.remove('selected'));
+            botao.classList.add('selected');
+        }
+
+        function finalizarAtividade() {
+            respostas.m3[0] = document.getElementById('lacuna1').value;
+            respostas.m3[1] = document.getElementById('lacuna2').value;
+
+            let questoesCertas = 0;
+            let totalQuestoes = 7;
+
+            if(respostas.m1[0] === gabarito.m1[0]) questoesCertas++;
+            if(respostas.m1[1] === gabarito.m1[1]) questoesCertas++;
+            if(respostas.m2[0] === gabarito.m2[0]) questoesCertas++;
+            if(respostas.m2[1] === gabarito.m2[1]) questoesCertas++;
+            if(respostas.m3[0] === gabarito.m3[0]) questoesCertas++;
+            if(respostas.m3[1] === gabarito.m3[1]) questoesCertas++;
+            if(respostas.m4 === gabarito.m4) questoesCertas++;
+
+            let erros = totalQuestoes - questoesCertas;
+            let notaFinal = (questoesCertas / totalQuestoes) * 10;
+            let percentualAproveitamento = Math.round((questoesCertas / totalQuestoes) * 100);
+
+            document.getElementById(`m${cardAtual}`).classList.remove('active');
+            document.getElementById('controles').style.display = 'none';
+            document.getElementById('tela-resultado').classList.add('active');
+
+            document.getElementById('nota-final').innerText = notaFinal.toFixed(1);
+            document.getElementById('total-acertos').innerText = questoesCertas;
+            document.getElementById('total-erros').innerText = erros;
+            document.getElementById('percentual').innerText = percentualAproveitamento + "%";
+
+            let feedbackElemento = document.getElementById('feedback-texto');
+            if(notaFinal >= 9) {
+                feedbackElemento.innerText = "⭐ NOTA 9–10: Excelente domínio do conteúdo!";
+                feedbackElemento.style.backgroundColor = "#D4EDDA";
+                feedbackElemento.style.color = "#155724";
+            } else if(notaFinal >= 7) {
+                feedbackElemento.innerText = "✨ NOTA 7–8: Bom domínio do conteúdo.";
+                feedbackElemento.style.backgroundColor = "#D1ECF1";
+                feedbackElemento.style.color = "#0C5460";
+            } else if(notaFinal >= 5) {
+                feedbackElemento.innerText = "🙃 NOTA 5–6: Domínio parcial. Recomenda-se revisão.";
+                feedbackElemento.style.backgroundColor = "#FFF3CD";
+                feedbackElemento.style.color = "#856404";
+            } else {
+                feedbackElemento.innerText = "🚀 NOTA 0–4: Necessita reforço e retomada do conteúdo.";
+                feedbackElemento.style.backgroundColor = "#F8D7DA";
+                feedbackElemento.style.color = "#721C24";
+            }
+
+            let domList = document.getElementById('lista-dominadas');
+            let revList = document.getElementById('lista-revisar');
+            domList.innerHTML = "";
+            revList.innerHTML = "";
+
+            if(respostas.m1[0] === gabarito.m1[0] && respostas.m1[1] === gabarito.m1[1]) {
+                domList.innerHTML += "<li>Diferenciação conceitual e teórica de dados brutos e informações organizadas.</li>";
+            } else {
+                revList.innerHTML += "<li>Identificação teórica das diferenças entre dados avulsos e dados contextualizados.</li>";
+            }
+
+            if(respostas.m2[0] === gabarito.m2[0] && respostas.m2[1] === gabarito.m2[1]) {
+                domList.innerHTML += "<li>Classificação e separação prática de termos isolados versus conjuntos informativos.</li>";
+            } else {
+                revList.innerHTML += "<li>Exercícios de categorização de elementos simples do cotidiano escolar.</li>";
+            }
+
+            if(respostas.m3[0] === gabarito.m3[0] && respostas.m3[1] === gabarito.m3[1]) {
+                domList.innerHTML += "<li>Capacidade de estruturar dados e aplicar sentido prático a sinalizações reais do dia a dia.</li>";
+            } else {
+                revList.innerHTML += "<li>Análise de problemas do mundo exterior e placas de trânsito locais.</li>";
+            }
+
+            if(respostas.m4 === gabarito.m4) {
+                domList.innerHTML += "<li>Compreensão do papel do computador como organizador de dados do mundo físico.</li>";
+            } else {
+                revList.innerHTML += "<li>Entendimento do processamento lógico feito por sistemas digitais modernos.</li>";
+            }
+
+            document.getElementById('box-dominadas').style.display = domList.innerHTML === "" ? 'none' : 'block';
+            document.getElementById('box-revisar').style.display = revList.innerHTML === "" ? 'none' : 'block';
+        }
+
+        function reiniciarJogo() {
+            cardAtual = 1;
+            respostas = { m1: [null, null], m2: [null, null], m3: [null, null], m4: null };
+            
+            let botoesSm = document.querySelectorAll('.btn-sm');
+            botoesSm.forEach(btn => {
+                btn.classList.remove('active-v', 'active-f', 'active-d', 'active-i');
+            });
+            
+            let opcoesQuiz = document.querySelectorAll('.btn-opt');
+            opcoesQuiz.forEach(opt => opt.classList.remove('selected'));
+
+            document.getElementById('lacuna1').value = "";
+            document.getElementById('lacuna2').value = "";
+
+            // Embaralhar as alternativas novamente para o próximo jogo
+            embaralharElementos('container-m1');
+            embaralharElementos('container-m2');
+            embaralharElementos('container-m4');
+
+            document.getElementById('tela-resultado').classList.remove('active');
+            document.getElementById('m1').classList.add('active');
+            
+            document.getElementById('controles').style.display = 'flex';
+            document.getElementById('btn-voltar').disabled = true;
+            document.getElementById('btn-avancar').innerText = "Avançar ➡️";
+            document.getElementById('btn-avancar').style.backgroundColor = "var(--primary)";
+            document.getElementById('btn-avancar').style.boxShadow = "0 4px 0 #D94E4E";
+        }
+    </script>
+</body>
+</html>
